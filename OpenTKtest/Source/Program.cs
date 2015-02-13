@@ -18,18 +18,10 @@ namespace OpenTKTest
             -0.5f, -0.5f, 0.0f
         };
 
-        string loadShaderFromFile(string file)
-        {
-            using(StreamReader sr = new StreamReader(file))
-            {
-                return sr.ReadToEnd();
-            }
-        }
-
         public Game() : base(800, 600, GraphicsMode.Default, "OpenTK")
         {
             VSync = VSyncMode.On;
-        }
+        }        
 
         protected override void OnLoad(EventArgs e)
         {
@@ -40,19 +32,19 @@ namespace OpenTKTest
 
             GL.GenBuffers(1, out vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(9 * sizeof(float)), verts, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(verts.Length * sizeof(float)), verts, BufferUsageHint.StaticDraw);
 
             GL.GenVertexArrays(1, out vao);
             GL.BindVertexArray(vao);
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
 
-            string shaderData = loadShaderFromFile("./Shaders/vertex.vert");
+            string shaderData = File.ReadAllText("./Shaders/vertex.vert");
             int vs = GL.CreateShader(ShaderType.VertexShader);            
             GL.ShaderSource(vs, shaderData);
             GL.CompileShader(vs);
 
-            shaderData = loadShaderFromFile("./Shaders/fragment.frag");
+            shaderData = File.ReadAllText("./Shaders/fragment.frag");
             int fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, shaderData);
             GL.CompileShader(fs);
