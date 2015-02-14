@@ -9,13 +9,20 @@ namespace OpenTKTest
 {
     class Game : GameWindow
     {
-        int vao, vbo, program;
+        int vao, vbo, colour, program;
 
         float[] verts =
         {
             0.0f, 0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
             -0.5f, -0.5f, 0.0f
+        };
+
+        float[] colours = 
+        {
+            1.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 1.0f
         };
 
         public Game() : base(800, 600, GraphicsMode.Default, "OpenTK")
@@ -30,14 +37,30 @@ namespace OpenTKTest
             GL.ClearColor(Color4.CornflowerBlue);
             GL.Enable(EnableCap.DepthTest);
 
+            // Vertices
             GL.GenBuffers(1, out vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(verts.Length * sizeof(float)), verts, BufferUsageHint.StaticDraw);
 
+            // Colours
+            GL.GenBuffers(1, out colour);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, colour);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(colours.Length * sizeof(float)), colours, BufferUsageHint.StaticDraw);
+
+            // Generate Vertex array
             GL.GenVertexArrays(1, out vao);
             GL.BindVertexArray(vao);
-            GL.EnableVertexAttribArray(0);
+
+            // Set position data            
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
+            // Set colour data            
+            GL.BindBuffer(BufferTarget.ArrayBuffer, colour);
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+
+            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
 
             string shaderData = File.ReadAllText("./Shaders/vertex.vert");
             int vs = GL.CreateShader(ShaderType.VertexShader);            
