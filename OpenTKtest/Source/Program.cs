@@ -9,20 +9,13 @@ namespace OpenTKTest
 {
     class Game : GameWindow
     {
-        int vao, vbo, colour, program;
+        int vao, vbo, program;
 
         float[] verts =
         {
-            0.0f, 0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f
-        };
-
-        float[] colours = 
-        {
-            1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f
+             0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+             0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
         };
 
         public Game() : base(800, 600, GraphicsMode.Default, "OpenTK")
@@ -37,27 +30,20 @@ namespace OpenTKTest
             GL.ClearColor(Color4.CornflowerBlue);
             GL.Enable(EnableCap.DepthTest);
 
-            // Vertices
-            GL.GenBuffers(1, out vbo);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(verts.Length * sizeof(float)), verts, BufferUsageHint.StaticDraw);
-
-            // Colours
-            GL.GenBuffers(1, out colour);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, colour);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(colours.Length * sizeof(float)), colours, BufferUsageHint.StaticDraw);
-
             // Generate Vertex array
             GL.GenVertexArrays(1, out vao);
             GL.BindVertexArray(vao);
 
-            // Set position data            
+            // Vertices
+            GL.GenBuffers(1, out vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(verts.Length * sizeof(float)), verts, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
 
-            // Set colour data            
-            GL.BindBuffer(BufferTarget.ArrayBuffer, colour);
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+            // Set position data                        
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+            // Set colour data
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
 
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
