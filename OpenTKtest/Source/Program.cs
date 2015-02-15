@@ -9,7 +9,7 @@ namespace OpenTKTest
 {
     class Game : GameWindow
     {
-        int vao, vbo, program;
+        int vao, vbo, program, status;
 
         float[] verts =
         {
@@ -45,6 +45,7 @@ namespace OpenTKTest
             // Set colour data
             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
 
+            // Enable both attributes
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
 
@@ -52,16 +53,34 @@ namespace OpenTKTest
             int vs = GL.CreateShader(ShaderType.VertexShader);            
             GL.ShaderSource(vs, shaderData);
             GL.CompileShader(vs);
+            GL.GetShader(vs, ShaderParameter.CompileStatus, out status);
+            if (status != 1)
+            {
+                Console.WriteLine(GL.GetShaderInfoLog(vs));
+                Exit();
+            }
 
             shaderData = File.ReadAllText("./Shaders/fragment.frag");
             int fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, shaderData);
             GL.CompileShader(fs);
+            GL.GetShader(fs, ShaderParameter.CompileStatus, out status);
+            if (status != 1)
+            {
+                Console.WriteLine(GL.GetShaderInfoLog(fs));
+                Exit();
+            }
 
             program = GL.CreateProgram();
             GL.AttachShader(program, vs);
             GL.AttachShader(program, fs);
             GL.LinkProgram(program);
+            GL.GetProgram(program, GetProgramParameterName.LinkStatus, out status);
+            if (status != 1)
+            {
+                Console.WriteLine(GL.GetProgramInfoLog(program));
+                Exit();
+            }
 
             GL.DetachShader(program, vs);
             GL.DetachShader(program, fs);
@@ -71,8 +90,7 @@ namespace OpenTKTest
         {
             base.OnResize(e);
 
-            GL.Viewport(ClientRectangle.X, ClientRectangle.Y,
-                        ClientRectangle.Width, ClientRectangle.Height);            
+            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);            
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
