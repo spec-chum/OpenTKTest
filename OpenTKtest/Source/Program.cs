@@ -3,6 +3,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace OpenTKTest
@@ -56,8 +57,8 @@ namespace OpenTKTest
             GL.GetShader(vs, ShaderParameter.CompileStatus, out status);
             if (status != 1)
             {
-                Console.WriteLine(GL.GetShaderInfoLog(vs));
-                Exit();
+                Debug.WriteLine(GL.GetShaderInfoLog(vs));
+                Exit();                
             }
 
             shaderData = File.ReadAllText("./Shaders/fragment.frag");
@@ -67,7 +68,7 @@ namespace OpenTKTest
             GL.GetShader(fs, ShaderParameter.CompileStatus, out status);
             if (status != 1)
             {
-                Console.WriteLine(GL.GetShaderInfoLog(fs));
+                Debug.WriteLine(GL.GetShaderInfoLog(fs));
                 Exit();
             }
 
@@ -78,7 +79,7 @@ namespace OpenTKTest
             GL.GetProgram(program, GetProgramParameterName.LinkStatus, out status);
             if (status != 1)
             {
-                Console.WriteLine(GL.GetProgramInfoLog(program));
+                Debug.WriteLine(GL.GetProgramInfoLog(program));
                 Exit();
             }
 
@@ -118,10 +119,16 @@ namespace OpenTKTest
         [STAThread]
         static void Main()
         {
+            TextWriterTraceListener tl = new TextWriterTraceListener("Debug.log");
+            Debug.Listeners.Add(tl);
+
             using (Game game = new Game())
             {
                 game.Run(30.0);
             }
+
+            tl.Flush();
+            tl.Close();
         }
     }
 }
