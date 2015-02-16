@@ -171,16 +171,16 @@ namespace OpenTKTest
         [STAThread]
         static void Main()
         {
-            TextWriterTraceListener tl = new TextWriterTraceListener("Debug.log");
-            Debug.Listeners.Add(tl);
+            TextWriterTraceListener debugLog = new TextWriterTraceListener("Debug.log");
+            Debug.Listeners.Add(debugLog);
 
             using (Game game = new Game())
             {
                 game.Run(144.0);
             }
 
-            tl.Flush();
-            tl.Close();
+            debugLog.Flush();
+            debugLog.Close();
         }
     }
 }
