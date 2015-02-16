@@ -10,18 +10,63 @@ namespace OpenTKTest
 {
     class Game : GameWindow
     {
-        int vao, vbo, program, status;
+        int vao, vbo, program, status, angleOffset;
+        float angle;
 
-        float[] verts =
-        {
-             0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-             0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-        };
+        float[] cube = 
+    {
+        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
 
-        public Game() : base(800, 600, GraphicsMode.Default, "OpenTK")
+        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        
+        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        
+        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        
+        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        
+        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        
+        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        
+        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        
+        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        
+        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        
+        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        
+        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
+};
+
+        public Game() : base(800, 800, GraphicsMode.Default, "OpenTK")
         {
-            VSync = VSyncMode.On;
+            VSync = VSyncMode.Off;
         }        
 
         protected override void OnLoad(EventArgs e)
@@ -38,7 +83,7 @@ namespace OpenTKTest
             // Vertices
             GL.GenBuffers(1, out vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(verts.Length * sizeof(float)), verts, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(cube.Length * sizeof(float)), cube, BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
 
             // Set position data                        
@@ -85,6 +130,8 @@ namespace OpenTKTest
 
             GL.DetachShader(program, vs);
             GL.DetachShader(program, fs);
+
+            angleOffset = GL.GetUniformLocation(program, "angle");
         }
 
         protected override void OnResize(EventArgs e)
@@ -100,6 +147,11 @@ namespace OpenTKTest
 
             if (Keyboard[Key.Escape])
                 Exit();
+
+            GL.UseProgram(program);
+            GL.Uniform1(angleOffset, angle);
+            angle += 1.0f * (float)e.Time;
+            GL.UseProgram(0);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -109,9 +161,9 @@ namespace OpenTKTest
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.UseProgram(program);
-
             GL.BindVertexArray(vao);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+            GL.UseProgram(0);
 
             SwapBuffers();
         }
@@ -124,7 +176,7 @@ namespace OpenTKTest
 
             using (Game game = new Game())
             {
-                game.Run(30.0);
+                game.Run(144.0);
             }
 
             tl.Flush();
