@@ -10,59 +10,29 @@ namespace OpenTKTest
 {
     class Game : GameWindow
     {
-        int vao, vbo, program, status, angleOffset;
+        int vao, vbo, ibo, program, status, angleOffset;
         float angle;
+        bool wireframe = false;
 
         float[] cube = 
-    {
-        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+        {
+            -0.5f,-0.5f,-0.5f,  // 1
+            -0.5f,-0.5f, 0.5f,  // 2
+            -0.5f, 0.5f, 0.5f,  // 3
+            0.5f, 0.5f,-0.5f,   // 4            
+            -0.5f, 0.5f,-0.5f,  // 5        
+            0.5f,-0.5f, 0.5f,   // 6            
+            0.5f,-0.5f,-0.5f,   // 7        
+            0.5f, 0.5f, 0.5f,   // 8           
+        };
 
-        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        
-        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        
-        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        
-        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        
-        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        
-        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        
-        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        
-        0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        
-        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        
-        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        
-        0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-};
+        int[] index = 
+        {
+            1, 2, 3, 4, 1, 5, 6, 1, 7,
+            4, 7, 1, 1, 3, 5, 6, 2, 1,
+            2, 3, 6, 8, 7, 4, 7, 8, 6,
+            8, 4, 5, 8, 5, 3, 8, 3, 6
+        };
 
         public Game() : base(800, 800, GraphicsMode.Default, "OpenTK")
         {
@@ -75,7 +45,7 @@ namespace OpenTKTest
 
             GL.ClearColor(Color4.CornflowerBlue);
             GL.Enable(EnableCap.DepthTest);
-
+            
             // Generate Vertex array
             GL.GenVertexArrays(1, out vao);
             GL.BindVertexArray(vao);
@@ -84,18 +54,18 @@ namespace OpenTKTest
             GL.GenBuffers(1, out vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(cube.Length * sizeof(float)), cube, BufferUsageHint.StaticDraw);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+
+            GL.GenBuffers(1, out ibo);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ibo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(index.Length * sizeof(float)), index, BufferUsageHint.StaticDraw);
 
             // Set position data                        
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
-            // Set colour data
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
 
-            // Enable both attributes
+            // Enable the position attribute
             GL.EnableVertexAttribArray(0);
-            GL.EnableVertexAttribArray(1);
 
-            string shaderData = File.ReadAllText("./Shaders/vertex.vert");
+            string shaderData = File.ReadAllText("./Shaders/vertex.glsl");
             int vs = GL.CreateShader(ShaderType.VertexShader);            
             GL.ShaderSource(vs, shaderData);
             GL.CompileShader(vs);
@@ -106,7 +76,7 @@ namespace OpenTKTest
                 Exit();                
             }
 
-            shaderData = File.ReadAllText("./Shaders/fragment.frag");
+            shaderData = File.ReadAllText("./Shaders/fragment.glsl");
             int fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, shaderData);
             GL.CompileShader(fs);
@@ -132,6 +102,8 @@ namespace OpenTKTest
             GL.DetachShader(program, fs);
 
             angleOffset = GL.GetUniformLocation(program, "angle");
+
+            Keyboard.KeyRepeat = false;
         }
 
         protected override void OnResize(EventArgs e)
@@ -141,12 +113,35 @@ namespace OpenTKTest
             GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);            
         }
 
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            switch (e.Key)
+            {
+                case Key.W:
+                    if (wireframe == true)
+                    {
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                        wireframe = false;
+                        break;
+                    }
+                    else
+                    {
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                        wireframe = true;
+                    }
+
+                    break;
+            }
+        }
+
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
 
             if (Keyboard[Key.Escape])
-                Exit();
+                Exit();          
 
             GL.UseProgram(program);
             GL.Uniform1(angleOffset, angle);
@@ -162,7 +157,8 @@ namespace OpenTKTest
 
             GL.UseProgram(program);
             GL.BindVertexArray(vao);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+            //GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+            GL.DrawElements(PrimitiveType.Triangles, index.Length, DrawElementsType.UnsignedInt, 0);
             GL.UseProgram(0);
 
             SwapBuffers();
@@ -176,7 +172,7 @@ namespace OpenTKTest
 
             using (Game game = new Game())
             {
-                game.Run(144.0);
+                game.Run(60.0);
             }
 
             debugLog.Flush();
