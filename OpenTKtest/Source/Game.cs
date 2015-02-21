@@ -43,6 +43,9 @@ namespace OpenTKTest
         {
             base.OnLoad(e);
 
+            Keyboard.KeyDown += Keyboard_KeyDown;
+            Keyboard.KeyRepeat = false;
+
             GL.ClearColor(Color4.CornflowerBlue);
             GL.Enable(EnableCap.DepthTest);
             
@@ -101,22 +104,11 @@ namespace OpenTKTest
             GL.DetachShader(program, vs);
             GL.DetachShader(program, fs);
 
-            angleOffset = GL.GetUniformLocation(program, "angle");
-
-            Keyboard.KeyRepeat = false;
+            angleOffset = GL.GetUniformLocation(program, "angle");            
         }
 
-        protected override void OnResize(EventArgs e)
+        void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e)
         {
-            base.OnResize(e);
-
-            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);            
-        }
-
-        protected override void OnKeyDown(KeyboardKeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-
             switch (e.Key)
             {
                 case Key.W:
@@ -134,6 +126,13 @@ namespace OpenTKTest
 
                     break;
             }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);            
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
