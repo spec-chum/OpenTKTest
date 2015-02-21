@@ -10,20 +10,22 @@ namespace OpenTKTest
 {
     class Game : GameWindow
     {
-        int vao, vbo, index, program, status, angleOffset;
+        Matrix4 projectionMatrix4, modelMatrix4;
+        int vao, vbo, index, program, status;
+        int projectionMatrixLocation, modelMatrixLocation, angleLocation;
         float angle;
         bool wireframe = false;
 
         float[] cube = 
         {
-            -0.5f, -0.5f, -0.5f,  // 1
-            -0.5f, -0.5f,  0.5f,  // 2
-            -0.5f,  0.5f,  0.5f,  // 3
-             0.5f,  0.5f, -0.5f,  // 4            
-            -0.5f,  0.5f, -0.5f,  // 5        
-             0.5f, -0.5f,  0.5f,  // 6            
-             0.5f, -0.5f, -0.5f,  // 7        
-             0.5f,  0.5f,  0.5f,  // 8           
+            -1.0f, -1.0f, -1.0f,  // 1 
+            -1.0f, -1.0f,  1.0f,  // 2
+            -1.0f,  1.0f,  1.0f,  // 3
+             1.0f,  1.0f, -1.0f,  // 4            
+            -1.0f,  1.0f, -1.0f,  // 5        
+             1.0f, -1.0f,  1.0f,  // 6            
+             1.0f, -1.0f, -1.0f,  // 7        
+             1.0f,  1.0f,  1.0f,  // 8           
         };
 
         int[] indices = 
@@ -104,7 +106,20 @@ namespace OpenTKTest
             GL.DetachShader(program, vs);
             GL.DetachShader(program, fs);
 
-            angleOffset = GL.GetUniformLocation(program, "angle");            
+            GL.UseProgram(program);
+
+            angleLocation = GL.GetUniformLocation(program, "angle");
+            projectionMatrixLocation = GL.GetUniformLocation(program, "projMat");
+            modelMatrixLocation = GL.GetUniformLocation(program, "modelMat");
+
+            float AR = ClientSize.Width / ClientSize.Height;
+            Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AR, 0.1f, 1000.0f, out projectionMatrix4);
+            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix4);
+
+            modelMatrix4 = Matrix4.LookAt(0, 3.0f, 10.0f,   0, 0, 0,    0, 1.0f, 0);
+            GL.UniformMatrix4(modelMatrixLocation, false, ref modelMatrix4);
+
+            GL.UseProgram(0);
         }
 
         void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e)
@@ -132,7 +147,15 @@ namespace OpenTKTest
         {
             base.OnResize(e);
 
-            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);            
+            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+
+            GL.UseProgram(program);
+
+            float AR = ClientSize.Width / ClientSize.Height;
+            Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AR, 0.1f, 1000.0f, out projectionMatrix4);
+            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix4);
+
+            GL.UseProgram(0);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -143,8 +166,14 @@ namespace OpenTKTest
                 Exit();          
 
             GL.UseProgram(program);
-            GL.Uniform1(angleOffset, angle);
+
+            GL.Uniform1(angleLocation, angle);
             angle += 1.0f * (float)e.Time;
+
+            Matrix4 rotationY = Matrix4.CreateRotationY((float)e.Time);
+            Matrix4.Mult(ref rotationY, ref modelMatrix4, out modelMatrix4);
+            GL.UniformMatrix4(modelMatrixLocation, false, ref modelMatrix4);
+
             GL.UseProgram(0);
         }
 
@@ -155,9 +184,10 @@ namespace OpenTKTest
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.UseProgram(program);
+
             GL.BindVertexArray(vao);
-            //GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+
             GL.UseProgram(0);
 
             SwapBuffers();
