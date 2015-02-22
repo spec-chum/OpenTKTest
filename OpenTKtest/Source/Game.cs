@@ -173,7 +173,10 @@ namespace OpenTKTest
                         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                         wireframe = true;
                     }
-
+                    
+                    break;
+                case Key.Escape:
+                    Exit();
                     break;
             }
         }
@@ -186,7 +189,7 @@ namespace OpenTKTest
 
             GL.UseProgram(program);
 
-            float AR = ClientSize.Width / ClientSize.Height;
+            float AR = (float)ClientSize.Width / (float)ClientSize.Height;
             Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AR, 0.1f, 1000.0f, out projectionMatrix4);
             GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix4);
 
@@ -196,9 +199,6 @@ namespace OpenTKTest
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-
-            if (Keyboard[Key.Escape])
-                Exit();          
 
             GL.UseProgram(program);
 
