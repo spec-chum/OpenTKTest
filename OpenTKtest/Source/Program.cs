@@ -2,10 +2,10 @@
 using System;
 using System.Diagnostics;
 
-class Program
+internal class Program
 {
     [STAThread]
-    static void Main()
+    private static void Main()
     {
         TextWriterTraceListener debugLog = new TextWriterTraceListener(Console.Out);
         Debug.Listeners.Add(debugLog);
