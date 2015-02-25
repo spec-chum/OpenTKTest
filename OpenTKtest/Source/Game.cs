@@ -195,7 +195,7 @@ namespace OpenTKTest
             modelMatrixLocation = GL.GetUniformLocation(program, "modelMat");
 
             // Initial MVP and modelView
-            float ar = ClientSize.Width / ClientSize.Height;
+            float ar = (float)ClientSize.Width / (float)ClientSize.Height;
             projectionMatrix4 = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 4, ar, 0.1f, 1000.0f);
             modelMatrix4 = Matrix4.LookAt(0, 3.0f, 10.0f, 0, 0, 0, 0, 1.0f, 0);
             GL.UseProgram(0);
