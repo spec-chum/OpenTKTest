@@ -79,7 +79,7 @@ namespace OpenTKTest
 
             GL.UseProgram(program);
             GL.BindVertexArray(vao);
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
             GL.UseProgram(0);
 
             SwapBuffers();
