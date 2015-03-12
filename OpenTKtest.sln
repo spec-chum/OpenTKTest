@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTKtest", "OpenTKtest\OpenTKtest.csproj", "{D1B441BC-71B0-4807-930F-785A9A0EC323}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTKTest", "OpenTKtest\OpenTKTest.csproj", "{D1B441BC-71B0-4807-930F-785A9A0EC323}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
