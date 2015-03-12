@@ -261,8 +261,8 @@ namespace OpenTKTest
                 Exit();
             }
 
-            GL.DetachShader(program, vs);
-            GL.DetachShader(program, fs);
+            GL.DeleteShader(vs);
+            GL.DeleteShader(fs);
         }
     }
 }
